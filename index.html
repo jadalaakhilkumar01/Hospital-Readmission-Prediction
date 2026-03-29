@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hospital Readmission Prediction</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f7fb;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      background: linear-gradient(45deg, purple, blue);
+      color: white;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      flex: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    input[type="file"] {
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .primary {
+      background: #2d6cdf;
+      color: white;
+    }
+
+    .secondary {
+      background: #e0e7ff;
+    }
+
+    .prediction-box {
+      margin-top: 20px;
+      background: #f1f5ff;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .risk-low { color: blue; }
+    .risk-medium { color: orange; }
+    .risk-high { color: red; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="title">
+    <div class="logo">HR</div>
+    <div>
+      <h2>Hospital Readmission Prediction</h2>
+      <small>Predict 30-day readmission risk</small>
+    </div>
+  </div>
+  <div>
+    <button class="secondary">Download Sample CSV</button>
+    <button onclick="resetAll()">Reset</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Left -->
+  <div class="card">
+    <h3>Upload dataset & run prediction</h3>
+
+    <input type="file" id="fileInput">
+    <p>OR paste CSV:</p>
+    <textarea id="csvInput" placeholder="patient_id,age,..."></textarea>
+
+    <br>
+    <button class="primary" onclick="parseCSV()">Parse & Predict</button>
+
+    <div id="predictions" class="prediction-box">
+      No data yet.
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="card">
+    <h3>Risk Overview</h3>
+    <p><b>Low</b> | <b>Medium</b> | <b>High</b></p>
+
+    <h4>Top contributing factors</h4>
+    <ul>
+      <li>Age > 65</li>
+      <li>Previous admissions > 1</li>
+      <li>Length of stay > 5 days</li>
+      <li>High blood pressure</li>
+    </ul>
+
+    <h4>Who benefits</h4>
+    <p>Doctors, Nurses, Hospital Management</p>
+  </div>
+
+</div>
+
+<script>
+  function parseCSV() {
+    let text = document.getElementById("csvInput").value;
+
+    if (!text) {
+      alert("Please paste CSV data");
+      return;
+    }
+
+    let lines = text.split("\n");
+    let resultHTML = "<h4>Predictions:</h4>";
+
+    for (let i = 1; i < lines.length; i++) {
+      let row = lines[i].split(",");
+
+      if (row.length < 5) continue;
+
+      let age = parseInt(row[1]);
+      let prev = parseInt(row[4]);
+      let stay = parseInt(row[3]);
+
+      let risk = "Low";
+
+      if (age > 65 || prev > 1 || stay > 5) {
+        risk = "High";
+      } else if (age > 50) {
+        risk = "Medium";
+      }
+
+      let className = 
+        risk === "High" ? "risk-high" :
+        risk === "Medium" ? "risk-medium" :
+        "risk-low";
+
+      resultHTML += `<p class="${className}">
+        Patient ${row[0]} → ${risk} Risk
+      </p>`;
+    }
+
+    document.getElementById("predictions").innerHTML = resultHTML;
+  }
+
+  function resetAll() {
+    document.getElementById("csvInput").value = "";
+    document.getElementById("predictions").innerHTML = "No data yet.";
+  }
+</script>
+
+</body>
+</html>
